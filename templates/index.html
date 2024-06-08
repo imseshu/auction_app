@@ -112,7 +112,15 @@
                     <td>{{ player['Position'] }}</td>
                     <td>{{ player['Base Price'] }}</td>
                     <td>
-                        {% if player in team['Players'] %}
+                        {% set is_sold = false %}
+                        {% for team in teams %}
+                            {% for p in team['Players'] %}
+                                {% if p['name'] == player['Player Name'] %}
+                                    {% set is_sold = true %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                        {% if is_sold %}
                             sold
                         {% else %}
                             pending
