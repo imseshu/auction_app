@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auction App</title>
+    <title>Player Auction App</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/204/204180.png">
     <style>
         .current-player {
             color: red;
-            font-size: 30px;
+            font-size: 25px;
             font-weight: bold;
             text-align: center;
             background-color: black;
@@ -19,7 +20,8 @@
             text-align: center;
         }
         body {
-            background-color: powderblue;
+            background-color: #f5f5dc;
+            margin: 0;
             font-family:'Trebuchet MS', sans-serif;
         }
         .button {
@@ -64,10 +66,15 @@
         .bowler {
             background-color: lightcoral;
         }
+        footer {
+            text-align: right;
+            padding: 3px;
+            font-size: 12px;
+            color: blue;
     </style>
 </head>
 <body>
-    <h1 class="center">PBL Auction</h1>
+    <h1 class="center">Player Auction Application</h1>
     <div style="display: flex;">
         <div style="flex: 1;">
             <h2>Current Player</h2>
@@ -124,7 +131,7 @@
                         <div>Players</div>
                         <ul>
                             {% for player in team['Players'] %}
-                            <li>{{ player['name'] }} - ₹{{ player['bid'] }}</li>
+                            <li style="font-size:18px; font-weight: bold;">{{ player['name'] }} - ₹{{ player['bid'] }}</li>
                             {% endfor %}
                         </ul>
                     </td>
@@ -196,5 +203,8 @@
         </form>
     </div>
     {% endif %}
+<footer>
+  <p>Author: Seshasai Naishadham | Made with Love <3</p>
+</footer>
 </body>
 </html>
