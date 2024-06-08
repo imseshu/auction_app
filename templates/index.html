@@ -13,6 +13,10 @@
             text-align: center;
             background-color: black;
         }
+        marquee {
+            background-color: #333;
+            color: #fff;
+        }
         h2 {
             font-weight: bold;
         }
@@ -75,6 +79,9 @@
 </head>
 <body>
     <h1 class="center">Player Auction Application</h1>
+    <marquee width="100%" direction="left" height="20px">
+        {{ scrolling }}
+    </marquee>
     <div style="display: flex;">
         <div style="flex: 1;">
             <h2>Current Player</h2>
@@ -128,7 +135,7 @@
                         <div style="font-weight: bold;">Budget: ₹{{ team['Budget'] }}</div>
                         {% set remaining_purse = remaining[team['Team Name']] %}
                         <div>Remaining: ₹{{ remaining_purse }}</div>
-                        <div>Players</div>
+                        <div>Players Purchased</div>
                         <ul>
                             {% for player in team['Players'] %}
                             <li style="font-size:18px; font-weight: bold;">{{ player['name'] }} - ₹{{ player['bid'] }}</li>

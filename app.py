@@ -47,6 +47,7 @@ last_bid_team = None
 auction_complete = False
 results_file = None
 first_bid = 0
+scrolling = ""
 remaining = {}
 for team in teams:
     remaining[team['Team Name']] = team['Budget']
@@ -62,7 +63,8 @@ def index():
                            players=players,
                            auction_complete=auction_complete,
                            results_file=results_file,
-                           remaining=remaining)
+                           remaining=remaining,
+                           scrolling=scrolling)
 
 
 @app.route('/bid/<team_name>', methods=['GET'])
@@ -99,7 +101,7 @@ def bid(team_name):
 
 @app.route('/finalize', methods=['GET'])
 def finalize():
-    global current_player_index, current_player, current_bid, highest_bid_team, auction_complete, results_file, last_bid_team, first_bid, remaining
+    global current_player_index, current_player, current_bid, highest_bid_team, auction_complete, results_file, last_bid_team, first_bid, remaining, scrolling
     first_bid=0
 
     if highest_bid_team:
@@ -115,7 +117,12 @@ def finalize():
         current_player['Status'] = 'Unsold'
         current_player['Final Price'] = '-'
         current_player['Sold To'] = '-'  # Indicate no team
-
+    scrolling = ""
+    for team in teams:
+        scrolling += team['Team Name'] + " (Remaining Purse: ₹" + str(remaining[team['Team Name']]) + ") Players Purchased - "
+        for player in team['Players']:
+            scrolling += player['name'] + " ₹" + str(player['bid']) + " "
+        scrolling += " | "
     # Move to the next player
     current_player_index += 1
     if current_player_index < len(players):
@@ -137,4 +144,4 @@ def download():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=6924, debug=True)
