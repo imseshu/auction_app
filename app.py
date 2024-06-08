@@ -31,18 +31,19 @@ def save_results_to_excel(teams):
         team_df = pd.DataFrame(team['Players'])
         team_df.to_excel(writer, sheet_name=team_name, index=False)
 
-    writer.save()
+    writer._save()
     return output_file
 
 
 # Load the initial data
-players, teams = load_data_from_excel('/mnt/data/auction_data.xlsx')
+players, teams = load_data_from_excel('auction_data.xlsx')
 
 # Auction variables
 current_player_index = 0
 current_player = players[current_player_index]
 current_bid = current_player['Base Price']
 highest_bid_team = None
+last_bid_team = None
 auction_complete = False
 results_file = None
 
@@ -62,29 +63,39 @@ def index():
 
 @app.route('/bid/<team_name>', methods=['GET'])
 def bid(team_name):
-    global current_bid, highest_bid_team, current_player
+    global current_bid, highest_bid_team, current_player, last_bid_team
 
-    if current_bid < 2 * current_player['Base Price']:
-        current_bid += 10  # Increment bid by 10
+    if last_bid_team == team_name:
+        return index()  # Prevent the same team from bidding twice consecutively
+
+    if current_bid == current_player['Base Price']:
+        current_bid += 10  # Initial increment
     else:
-        current_bid += 20  # Increment bid by 20
+        increment = 10 if current_bid < 2 * current_player['Base Price'] else 20
+        current_bid += increment
 
     highest_bid_team = team_name
+    last_bid_team = team_name
+
     return index()
 
 
 @app.route('/finalize', methods=['GET'])
 def finalize():
-    global current_player_index, current_player, current_bid, highest_bid_team, auction_complete, results_file
+    global current_player_index, current_player, current_bid, highest_bid_team, auction_complete, results_file, last_bid_team
 
     if highest_bid_team:
         for team in teams:
             if team['Team Name'] == highest_bid_team:
                 team['Players'].append({'name': current_player['Player Name'], 'bid': current_bid})
+                current_player['Status'] = 'Sold'
+                current_player['Final Price'] = current_bid
+                current_player['Sold To'] = highest_bid_team  # Record the team the player was sold to
                 break
     else:
-        # Player not sold, keeping the base price as final bid
-        current_bid = current_player['Base Price']
+        current_player['Status'] = 'Unsold'
+        current_player['Final Price'] = '-'
+        current_player['Sold To'] = '-'  # Indicate no team
 
     # Move to the next player
     current_player_index += 1
@@ -92,6 +103,7 @@ def finalize():
         current_player = players[current_player_index]
         current_bid = current_player['Base Price']
         highest_bid_team = None
+        last_bid_team = None
     else:
         current_player = None
         auction_complete = True

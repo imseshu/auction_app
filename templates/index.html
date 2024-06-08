@@ -13,8 +13,14 @@
         .sold {
             color: green;
         }
+        .unsold {
+            color: gray;
+        }
         .pending {
             color: orange;
+        }
+        .highlight {
+            background-color: yellow;
         }
         .all-rounder {
             background-color: lightblue;
@@ -104,33 +110,29 @@
                     <th>Position</th>
                     <th>Base Price</th>
                     <th>Status</th>
+                    <th>Sold To</th>
                 </tr>
                 {% for player in players %}
-                <tr class="{{ player['Skill'].lower() }}">
+                <tr class="{% if player == current_player %}highlight{% elif player['Status'] == 'Sold' %}sold{% elif player['Status'] == 'Unsold' %}unsold{% else %}pending{% endif %}">
                     <td>{{ player['Player Name'] }}</td>
                     <td>{{ player['Skill'] }}</td>
                     <td>{{ player['Position'] }}</td>
                     <td>{{ player['Base Price'] }}</td>
                     <td>
-                        {% set is_sold = false %}
-                        {% for team in teams %}
-                            {% for p in team['Players'] %}
-                                {% if p['name'] == player['Player Name'] %}
-                                    {% set is_sold = true %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endfor %}
-                        {% if is_sold %}
-                            sold
+                        {% if player['Status'] == 'Sold' %}
+                            Sold - ${{ player['Final Price'] }}
+                        {% elif player['Status'] == 'Unsold' %}
+                            Unsold - -
                         {% else %}
-                            pending
+                            Pending
                         {% endif %}
                     </td>
+                    <td>{{ player['Sold To'] }}</td>
                 </tr>
                 {% endfor %}
             </table>
 
-            <h2>Players by Sold Amount</h2>
+            <h2>Players Sold by Amount</h2>
             <table border="1">
                 <tr>
                     <th>Player Name</th>
@@ -161,9 +163,9 @@
 
     {% if auction_complete %}
     <div>
-        <h2>Auction Complete</h2>
+        <h2>Auction Complete!</h2>
         <form action="/download" method="get">
-            <button type="submit">Download Auction Results</button>
+            <button type="submit">Download Results</button>
         </form>
     </div>
     {% endif %}
