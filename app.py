@@ -17,7 +17,7 @@ def load_data_from_excel(file_path):
     return players, teams
 
 # Load the initial data
-players, teams = load_data_from_excel('/auction_data.xlsx')
+players, teams = load_data_from_excel('auction_data.xlsx')
 
 # Auction variables
 current_player_index = 0
