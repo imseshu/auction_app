@@ -46,7 +46,10 @@ highest_bid_team = None
 last_bid_team = None
 auction_complete = False
 results_file = None
-
+first_bid = 0
+remaining = {}
+for team in teams:
+    remaining[team['Team Name']] = team['Budget']
 
 @app.route('/')
 def index():
@@ -58,20 +61,34 @@ def index():
                            teams=teams,
                            players=players,
                            auction_complete=auction_complete,
-                           results_file=results_file)
+                           results_file=results_file,
+                           remaining=remaining)
 
 
 @app.route('/bid/<team_name>', methods=['GET'])
 def bid(team_name):
-    global current_bid, highest_bid_team, current_player, last_bid_team
+    global current_bid, highest_bid_team, current_player, last_bid_team, first_bid, remaining
 
     if last_bid_team == team_name:
         return index()  # Prevent the same team from bidding twice consecutively
 
     if current_bid == current_player['Base Price']:
-        current_bid += 10  # Initial increment
+        if first_bid == 0:
+            current_bid += 0
+            first_bid = 1
+        else:
+            if remaining[team_name] >= current_bid + 10:
+                current_bid += 10  # Initial increment
+            else:
+                return index()
     else:
-        increment = 10 if current_bid < 2 * current_player['Base Price'] else 20
+        if current_bid < 2 * current_player['Base Price'] and remaining[team_name] >= current_bid + 10:
+            increment = 10
+        else:
+            if remaining[team_name] >= current_bid + 20:
+                increment = 20
+            else:
+                return index()
         current_bid += increment
 
     highest_bid_team = team_name
@@ -82,13 +99,15 @@ def bid(team_name):
 
 @app.route('/finalize', methods=['GET'])
 def finalize():
-    global current_player_index, current_player, current_bid, highest_bid_team, auction_complete, results_file, last_bid_team
+    global current_player_index, current_player, current_bid, highest_bid_team, auction_complete, results_file, last_bid_team, first_bid, remaining
+    first_bid=0
 
     if highest_bid_team:
         for team in teams:
             if team['Team Name'] == highest_bid_team:
                 team['Players'].append({'name': current_player['Player Name'], 'bid': current_bid})
                 current_player['Status'] = 'Sold'
+                remaining[team['Team Name']] -= current_bid
                 current_player['Final Price'] = current_bid
                 current_player['Sold To'] = highest_bid_team  # Record the team the player was sold to
                 break

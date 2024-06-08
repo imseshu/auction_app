@@ -7,17 +7,50 @@
     <style>
         .current-player {
             color: red;
-            font-size: 20px;
+            font-size: 30px;
+            font-weight: bold;
+            text-align: center;
+            background-color: black;
+        }
+        h2 {
             font-weight: bold;
         }
+        .center{
+            text-align: center;
+        }
+        body {
+            background-color: powderblue;
+            font-family:'Trebuchet MS', sans-serif;
+        }
+        .button {
+            padding: 15px 25px;
+            background-color: #04AA6D;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 15px;
+        }
+        .button:hover {background-color: red}
+        .finalise {
+            padding: 15px 25px;
+            background-color: #f4511e;
+            color: white;
+            font-weight: bold;
+            font-size: 28px;
+            cursor: pointer;
+            border-radius: 15px;
+        }
         .sold {
-            color: green;
+            background-color: green;
+            color: white;
         }
         .unsold {
-            color: gray;
+            background-color: #f4511e;
+            color: white;
         }
         .pending {
-            color: orange;
+            background-color: lightgray;
+            color: black;
         }
         .highlight {
             background-color: yellow;
@@ -34,20 +67,19 @@
     </style>
 </head>
 <body>
-    <h1>Auction App</h1>
-
+    <h1 class="center">PBL Auction</h1>
     <div style="display: flex;">
         <div style="flex: 1;">
             <h2>Current Player</h2>
-            <table border="1">
-                <tr>
+            <table border="1" style="width:100%">
+                <tr style="background-color: orange">
                     <th>Player Name</th>
                     <th>Skill</th>
                     <th>Position</th>
                     <th>Base Price</th>
                 </tr>
                 {% if current_player %}
-                <tr class="current-player {{ current_player['Skill'].lower() }}">
+                <tr style="background-color: white" class="current-player {{ current_player['Skill'].lower() }}">
                     <td>{{ current_player['Player Name'] }}</td>
                     <td>{{ current_player['Skill'] }}</td>
                     <td>{{ current_player['Position'] }}</td>
@@ -55,38 +87,44 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="4">Auction Complete</td>
+                    <td colspan="4" class="center" style="background-color: green; color: white; font-size: 20px; font-weight: bold;">Auction Complete!</td>
                 </tr>
                 {% endif %}
             </table>
 
             {% if current_player %}
-            <h3>Current Bid: ${{ current_bid }}</h3>
+            <h1>Current Bid: ₹{{ current_bid }}</h1>
             {% if highest_bid_team %}
-            <h3>Current Bid is with: {{ highest_bid_team }}</h3>
+            <h1>Current Bid is with: {{ highest_bid_team }}</h1>
             {% endif %}
             {% endif %}
-
+            <div>
+            <h2>Bidding</h2>
+                {% for team in teams %}
+                {% if current_player %}
+                <form action="/bid/{{ team['Team Name'] }}" method="get" style="display:inline;">
+                    <button type="submit" class="button" style="font-size:20px;">{{ team['Team Name'] }}</button>
+                </form>
+                 {% endif %}
+                {% endfor %}
+            </div>
             <h2>Teams</h2>
-            <table border="1">
-                <tr>
+            <table border="1" style="width:100%">
+                <tr style="background-color: orange">
                     {% for team in teams %}
                     <th>{{ team['Team Name'] }}</th>
                     {% endfor %}
                 </tr>
-                <tr>
+                <tr class="center">
                     {% for team in teams %}
                     <td>
-                        <div>Budget: {{ team['Budget'] }}</div>
-                        {% set total_bid = 0 %}
-                        {% for player in team['Players'] %}
-                            {% set total_bid = total_bid + player['bid'] %}
-                        {% endfor %}
-                        <div>Remaining: {{ team['Budget'] - total_bid }}</div>
-                        <div>Players:</div>
+                        <div style="font-weight: bold;">Budget: ₹{{ team['Budget'] }}</div>
+                        {% set remaining_purse = remaining[team['Team Name']] %}
+                        <div>Remaining: ₹{{ remaining_purse }}</div>
+                        <div>Players</div>
                         <ul>
                             {% for player in team['Players'] %}
-                            <li>{{ player['name'] }} - ${{ player['bid'] }}</li>
+                            <li>{{ player['name'] }} - ₹{{ player['bid'] }}</li>
                             {% endfor %}
                         </ul>
                     </td>
@@ -96,15 +134,15 @@
 
             {% if current_player %}
             <form action="/finalize" method="get">
-                <input type="submit" value="Finalize Current Bid">
+                <input type="submit" class="finalise" value="Finalize Current Bid">
             </form>
             {% endif %}
         </div>
 
         <div style="flex: 1; margin-left: 20px;">
             <h2>All Players</h2>
-            <table border="1">
-                <tr>
+            <table border="1" class="center" style="width:100%">
+                <tr style="background-color: orange">
                     <th>Player Name</th>
                     <th>Skill</th>
                     <th>Position</th>
@@ -117,10 +155,10 @@
                     <td>{{ player['Player Name'] }}</td>
                     <td>{{ player['Skill'] }}</td>
                     <td>{{ player['Position'] }}</td>
-                    <td>{{ player['Base Price'] }}</td>
+                    <td>₹{{ player['Base Price'] }}</td>
                     <td>
                         {% if player['Status'] == 'Sold' %}
-                            Sold - ${{ player['Final Price'] }}
+                            Sold - ₹{{ player['Final Price'] }}
                         {% elif player['Status'] == 'Unsold' %}
                             Unsold - -
                         {% else %}
@@ -133,8 +171,8 @@
             </table>
 
             <h2>Players Sold by Amount</h2>
-            <table border="1">
-                <tr>
+            <table border="1" class="center">
+                <tr style="background-color: orange">
                     <th>Player Name</th>
                     <th>Sold Amount</th>
                 </tr>
@@ -142,7 +180,7 @@
                     {% for player in team['Players'] %}
                     <tr>
                         <td>{{ player['name'] }}</td>
-                        <td>{{ player['bid'] }}</td>
+                        <td>₹{{ player['bid'] }}</td>
                     </tr>
                     {% endfor %}
                 {% endfor %}
@@ -150,22 +188,11 @@
         </div>
     </div>
 
-    <div>
-        <h2>Bid Actions</h2>
-        {% for team in teams %}
-        {% if current_player %}
-        <form action="/bid/{{ team['Team Name'] }}" method="get" style="display:inline;">
-            <button type="submit" style="font-size:20px;">Increase Bid for {{ team['Team Name'] }}</button>
-        </form>
-        {% endif %}
-        {% endfor %}
-    </div>
-
     {% if auction_complete %}
     <div>
-        <h2>Auction Complete!</h2>
+        <h1>Auction Complete!</h1>
         <form action="/download" method="get">
-            <button type="submit">Download Results</button>
+            <button class="button" type="submit">Download Auction Results</button>
         </form>
     </div>
     {% endif %}
