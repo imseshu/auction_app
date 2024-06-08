@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -40,17 +40,25 @@
                     <th>Position</th>
                     <th>Base Price</th>
                 </tr>
+                {% if current_player %}
                 <tr class="current-player {{ current_player['Skill'].lower() }}">
                     <td>{{ current_player['Player Name'] }}</td>
                     <td>{{ current_player['Skill'] }}</td>
                     <td>{{ current_player['Position'] }}</td>
                     <td>{{ current_player['Base Price'] }}</td>
                 </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4">Auction Complete</td>
+                </tr>
+                {% endif %}
             </table>
 
+            {% if current_player %}
             <h3>Current Bid: ${{ current_bid }}</h3>
             {% if highest_bid_team %}
             <h3>Current Bid is with: {{ highest_bid_team }}</h3>
+            {% endif %}
             {% endif %}
 
             <h2>Teams</h2>
@@ -65,30 +73,26 @@
                     <td>
                         <div>Budget: {{ team['Budget'] }}</div>
                         {% set total_bid = 0 %}
-                        {% if team['Players'] is iterable %}
-                            {% for player in team['Players'] %}
-                                {% set total_bid = total_bid + player.bid %}
-                            {% endfor %}
-                        {% else %}
-                            {% set total_bid = 0 %}
-                        {% endif %}
+                        {% for player in team['Players'] %}
+                            {% set total_bid = total_bid + player['bid'] %}
+                        {% endfor %}
                         <div>Remaining: {{ team['Budget'] - total_bid }}</div>
                         <div>Players:</div>
                         <ul>
-                            {% if team['Players'] is iterable %}
-                                {% for player in team['Players'] %}
-                                    <li>{{ player.name }} - ${{ player.bid }}</li>
-                                {% endfor %}
-                            {% endif %}
+                            {% for player in team['Players'] %}
+                            <li>{{ player['name'] }} - ${{ player['bid'] }}</li>
+                            {% endfor %}
                         </ul>
                     </td>
                     {% endfor %}
                 </tr>
             </table>
 
+            {% if current_player %}
             <form action="/finalize" method="get">
                 <input type="submit" value="Finalize Current Bid">
             </form>
+            {% endif %}
         </div>
 
         <div style="flex: 1; margin-left: 20px;">
@@ -102,12 +106,18 @@
                     <th>Status</th>
                 </tr>
                 {% for player in players %}
-                <tr class="{{ player['Status'].lower() }} {{ player['Skill'].lower() }}">
+                <tr class="{{ player['Skill'].lower() }}">
                     <td>{{ player['Player Name'] }}</td>
                     <td>{{ player['Skill'] }}</td>
                     <td>{{ player['Position'] }}</td>
                     <td>{{ player['Base Price'] }}</td>
-                    <td>{{ player['Status'] }}</td>
+                    <td>
+                        {% if player in team['Players'] %}
+                            sold
+                        {% else %}
+                            pending
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </table>
@@ -118,11 +128,13 @@
                     <th>Player Name</th>
                     <th>Sold Amount</th>
                 </tr>
-                {% for bid in bids_df.sort_values('Bid Amount', ascending=False).to_dict('records') %}
-                <tr>
-                    <td>{{ bid['Player Name'] }}</td>
-                    <td>{{ bid['Bid Amount'] }}</td>
-                </tr>
+                {% for team in teams %}
+                    {% for player in team['Players'] %}
+                    <tr>
+                        <td>{{ player['name'] }}</td>
+                        <td>{{ player['bid'] }}</td>
+                    </tr>
+                    {% endfor %}
                 {% endfor %}
             </table>
         </div>
@@ -131,9 +143,11 @@
     <div>
         <h2>Bid Actions</h2>
         {% for team in teams %}
+        {% if current_player %}
         <form action="/bid/{{ team['Team Name'] }}" method="get" style="display:inline;">
             <button type="submit" style="font-size:20px;">Increase Bid for {{ team['Team Name'] }}</button>
         </form>
+        {% endif %}
         {% endfor %}
     </div>
 </body>
