@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
 import pandas as pd
+from datetime import datetime
+import os
 
 app = Flask(__name__)
+
 
 # Load data from Excel file
 def load_data_from_excel(file_path):
@@ -16,41 +19,72 @@ def load_data_from_excel(file_path):
 
     return players, teams
 
+
+# Save auction results to Excel file
+def save_results_to_excel(teams):
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    output_file = f'auction_results_{timestamp}.xlsx'
+    writer = pd.ExcelWriter(output_file, engine='xlsxwriter')
+
+    for team in teams:
+        team_name = team['Team Name']
+        team_df = pd.DataFrame(team['Players'])
+        team_df.to_excel(writer, sheet_name=team_name, index=False)
+
+    writer.save()
+    return output_file
+
+
 # Load the initial data
-players, teams = load_data_from_excel('auction_data.xlsx')
+players, teams = load_data_from_excel('/mnt/data/auction_data.xlsx')
 
 # Auction variables
 current_player_index = 0
 current_player = players[current_player_index]
 current_bid = current_player['Base Price']
 highest_bid_team = None
+auction_complete = False
+results_file = None
+
 
 @app.route('/')
 def index():
-    global current_player, current_bid, highest_bid_team
+    global current_player, current_bid, highest_bid_team, auction_complete, results_file
     return render_template('index.html',
                            current_player=current_player,
                            current_bid=current_bid,
                            highest_bid_team=highest_bid_team,
                            teams=teams,
-                           players=players)
+                           players=players,
+                           auction_complete=auction_complete,
+                           results_file=results_file)
+
 
 @app.route('/bid/<team_name>', methods=['GET'])
 def bid(team_name):
-    global current_bid, highest_bid_team
-    current_bid += 1  # Increment bid by 1
+    global current_bid, highest_bid_team, current_player
+
+    if current_bid < 2 * current_player['Base Price']:
+        current_bid += 10  # Increment bid by 10
+    else:
+        current_bid += 20  # Increment bid by 20
+
     highest_bid_team = team_name
     return index()
 
+
 @app.route('/finalize', methods=['GET'])
 def finalize():
-    global current_player_index, current_player, current_bid, highest_bid_team
+    global current_player_index, current_player, current_bid, highest_bid_team, auction_complete, results_file
 
     if highest_bid_team:
         for team in teams:
             if team['Team Name'] == highest_bid_team:
                 team['Players'].append({'name': current_player['Player Name'], 'bid': current_bid})
                 break
+    else:
+        # Player not sold, keeping the base price as final bid
+        current_bid = current_player['Base Price']
 
     # Move to the next player
     current_player_index += 1
@@ -60,8 +94,16 @@ def finalize():
         highest_bid_team = None
     else:
         current_player = None
+        auction_complete = True
+        results_file = save_results_to_excel(teams)  # Save results to Excel
 
     return index()
+
+
+@app.route('/download', methods=['GET'])
+def download():
+    return send_file(results_file, as_attachment=True)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
