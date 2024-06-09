@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Auction App</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/204/204180.png">
+</head>
+<style>
+    /* Reset default margin and padding */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    /* Set the background image and blur effect */
+    .background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('{{ url_for('static', filename='images/background.jpg') }}') no-repeat center center/cover;
+        filter: blur(8px);
+        z-index: -1;
+    }
+
+    /* Centered box styling */
+    .center-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.8);
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .center-box h1 {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #333;
+    }
+    .button {
+            padding: 15px 25px;
+            background-color: #04AA6D;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 28px;
+            border-radius: 15px;
+    }
+    .button:hover {background-color: green}
+</style>
+<body>
+    <div class="background"></div>
+    <div class="center-box">
+        <h1>Welcome to Player Auction Application!</h1>
+        <form action="/auction" method="get">
+            <input type="submit" class="button" value="Start Auction!">
+        </form>
+    </div>
+</body>
+</html>

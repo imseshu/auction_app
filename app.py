@@ -53,6 +53,10 @@ for team in teams:
     remaining[team['Team Name']] = team['Budget']
 
 @app.route('/')
+def welcome():
+    return render_template('welcome.html')
+
+@app.route('/auction')
 def index():
     global current_player, current_bid, highest_bid_team, auction_complete, results_file
     return render_template('index.html',
