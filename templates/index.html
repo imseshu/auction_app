@@ -75,13 +75,16 @@
             padding: 3px;
             font-size: 12px;
             color: blue;
+        }
     </style>
 </head>
 <body>
     <h1 class="center">Player Auction Application</h1>
-    <marquee width="100%" direction="left" height="20px">
+    {% if not current_player %}
+    <marquee direction="left" height="20px" width="100%">
         {{ scrolling }}
     </marquee>
+    {% endif %}
     <div style="display: flex;">
         <div style="flex: 1;">
             <h2>Current Player</h2>
@@ -97,7 +100,7 @@
                     <td>{{ current_player['Player Name'] }}</td>
                     <td>{{ current_player['Skill'] }}</td>
                     <td>{{ current_player['Position'] }}</td>
-                    <td>{{ current_player['Base Price'] }}</td>
+                    <td>₹{{ current_player['Base Price'] }}</td>
                 </tr>
                 {% else %}
                 <tr>
@@ -135,7 +138,7 @@
                         <div style="font-weight: bold;">Budget: ₹{{ team['Budget'] }}</div>
                         {% set remaining_purse = remaining[team['Team Name']] %}
                         <div>Remaining: ₹{{ remaining_purse }}</div>
-                        <div>Players Purchased</div>
+                        <div>Players Purchased: {{ team['Players'] | length }}</div>
                         <ul>
                             {% for player in team['Players'] %}
                             <li style="font-size:18px; font-weight: bold;">{{ player['name'] }} - ₹{{ player['bid'] }}</li>
