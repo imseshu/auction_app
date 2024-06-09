@@ -186,22 +186,6 @@
                 </tr>
                 {% endfor %}
             </table>
-
-            <h2>Players Sold by Amount</h2>
-            <table border="1" class="center">
-                <tr style="background-color: orange">
-                    <th>Player Name</th>
-                    <th>Sold Amount</th>
-                </tr>
-                {% for team in teams %}
-                    {% for player in team['Players'] %}
-                    <tr>
-                        <td>{{ player['name'] }}</td>
-                        <td>₹{{ player['bid'] }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endfor %}
-            </table>
         </div>
     </div>
 
@@ -211,10 +195,13 @@
         <form action="/download" method="get">
             <button class="button" type="submit">Download Auction Results</button>
         </form>
+        <form action="/">
+            <button class="button" type="submit">Start New Auction</button>
+        </form>
     </div>
     {% endif %}
 <footer>
-  <p>Author: Seshasai Naishadham | Made with Love <3</p>
+  <p>Author: Seshasai Naishadham | Made with Love</p>
 </footer>
 </body>
 </html>

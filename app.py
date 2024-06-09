@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, redirect, url_for
 import pandas as pd
 from datetime import datetime
-import os
+import os, sys
+import importlib
 
 app = Flask(__name__)
 
@@ -35,26 +36,10 @@ def save_results_to_excel(teams):
     return output_file
 
 
-# Load the initial data
-players, teams = load_data_from_excel('auction_data.xlsx')
-
-# Auction variables
-current_player_index = 0
-current_player = players[current_player_index]
-current_bid = current_player['Base Price']
-highest_bid_team = None
-last_bid_team = None
-auction_complete = False
-results_file = None
-first_bid = 0
-scrolling = ""
-remaining = {}
-for team in teams:
-    remaining[team['Team Name']] = team['Budget']
-
 @app.route('/')
 def welcome():
     return render_template('welcome.html')
+
 
 @app.route('/auction')
 def index():
@@ -71,6 +56,48 @@ def index():
                            scrolling=scrolling)
 
 
+UPLOAD_FOLDER = './'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+def save_uploaded_file(file):
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'auction_data.xlsx'))
+
+
+@app.route('/start_auction', methods=['POST'])
+def start_auction():
+    if 'file' not in request.files:
+        return "No file uploaded"
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return "No selected file"
+
+    if file:
+        # Save the uploaded file (overwrite if it exists)
+        save_uploaded_file(file)
+        return redirect(url_for('index'))
+
+
+# Load the initial data
+players, teams = load_data_from_excel('auction_data.xlsx')
+
+# Auction variables
+current_player_index = 0
+current_player = players[current_player_index]
+current_bid = current_player['Base Price']
+highest_bid_team = None
+last_bid_team = None
+auction_complete = False
+results_file = None
+first_bid = 0
+scrolling = ""
+remaining = {}
+for team in teams:
+    remaining[team['Team Name']] = team['Budget']
 @app.route('/bid/<team_name>', methods=['GET'])
 def bid(team_name):
     global current_bid, highest_bid_team, current_player, last_bid_team, first_bid, remaining

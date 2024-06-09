@@ -1,0 +1,15 @@
+<h2>Players Sold by Amount</h2>
+            <table border="1" class="center">
+                <tr style="background-color: orange">
+                    <th>Player Name</th>
+                    <th>Sold Amount</th>
+                </tr>
+                {% for team in teams %}
+                    {% for player in team['Players'] %}
+                    <tr>
+                        <td>{{ player['name'] }}</td>
+                        <td>₹{{ player['bid'] }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </table>
