@@ -142,7 +142,7 @@
                 {% for team in teams %}
                 {% if current_player %}
                 <form action="/bid/{{ team['Team Name'] }}" method="get" style="display:inline;">
-                    <button type="submit" class="button" style="font-size:20px;background-color: {{ team['Color'] }};">{{ team['Team Name'] }}</button>
+                    <button type="submit" class="button" style="font-size:20px;background-color: {{ team['Color'] }}; color: black">{{ team['Team Name'] }}</button>
                 </form>
                  {% endif %}
                 {% endfor %}
