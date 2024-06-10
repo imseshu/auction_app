@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
     <style>
         .current-player {
-            color: red;
+            color: yellow;
             font-size: 25px;
             font-weight: bold;
             text-align: center;
@@ -23,23 +23,39 @@
         .center{
             text-align: center;
         }
+        .header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            color: white;
+            background-color: #1B2C99  ;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 2px;
+            font-family:'Helvetica', sans-serif;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
         body {
-            background-color: #f5f5dc;
+            background-color: #F7F7F7;
             margin: 0;
             font-family:'Trebuchet MS', sans-serif;
         }
+        table, th, td {
+            border-style: inset;
+        }
         .button {
             padding: 15px 25px;
-            background-color: #04AA6D;
-            color: white;
             font-weight: bold;
             cursor: pointer;
             border-radius: 15px;
+            background-color: #04AA6D;
+            color: white;
         }
-        .button:hover {background-color: red}
+        .button:hover {background-color: black}
         .finalise {
             padding: 15px 25px;
-            background-color: #f4511e;
+            background-color: #04AA6D;
             color: white;
             font-weight: bold;
             font-size: 28px;
@@ -55,7 +71,7 @@
             color: white;
         }
         .pending {
-            background-color: lightgray;
+            background-color: #D0EBFE;
             color: black;
         }
         .highlight {
@@ -76,10 +92,16 @@
             font-size: 12px;
             color: blue;
         }
+        .header img {
+            width: 30px;
+            height: 30px;
+        }
     </style>
 </head>
 <body>
-    <h1 class="center">Player Auction Application</h1>
+    <div class="header">
+        <h1 class="center"><img src="{{ url_for('static', filename='images/icon.png') }}" alt="logo" /> Player Auction Application</h1>
+    </div>
     {% if not current_player %}
     <marquee direction="left" height="20px" width="100%">
         {{ scrolling }}
@@ -91,12 +113,12 @@
             <table border="1" style="width:100%">
                 <tr style="background-color: orange">
                     <th>Player Name</th>
-                    <th>Skill</th>
-                    <th>Position</th>
+                    <th>Batting Style</th>
+                    <th>Bowling Style</th>
                     <th>Base Price</th>
                 </tr>
                 {% if current_player %}
-                <tr style="background-color: white" class="current-player {{ current_player['Skill'].lower() }}">
+                <tr style="background-color: black;" class="current-player {{ current_player['Skill'].lower() }}">
                     <td>{{ current_player['Player Name'] }}</td>
                     <td>{{ current_player['Skill'] }}</td>
                     <td>{{ current_player['Position'] }}</td>
@@ -112,7 +134,7 @@
             {% if current_player %}
             <h1>Current Bid: ₹{{ current_bid }}</h1>
             {% if highest_bid_team %}
-            <h1>Current Bid is with: {{ highest_bid_team }}</h1>
+            <h1 style="background-color: {{ highest_bid_team_color }}">Current bid with: {{ highest_bid_team }}</h1>
             {% endif %}
             {% endif %}
             <div>
@@ -120,7 +142,7 @@
                 {% for team in teams %}
                 {% if current_player %}
                 <form action="/bid/{{ team['Team Name'] }}" method="get" style="display:inline;">
-                    <button type="submit" class="button" style="font-size:20px;">{{ team['Team Name'] }}</button>
+                    <button type="submit" class="button" style="font-size:20px;background-color: {{ team['Color'] }};">{{ team['Team Name'] }}</button>
                 </form>
                  {% endif %}
                 {% endfor %}
@@ -129,12 +151,12 @@
             <table border="1" style="width:100%">
                 <tr style="background-color: orange">
                     {% for team in teams %}
-                    <th>{{ team['Team Name'] }}</th>
+                    <th style="background-color: {{ team['Color'] }};">{{ team['Team Name'] }}</th>
                     {% endfor %}
                 </tr>
                 <tr class="center" >
                     {% for team in teams %}
-                    <td>
+                    <td style="background-color: {{ team['Color'] }};">
                         <div style="font-weight: bold;">Budget: ₹{{ team['Budget'] }}</div>
                         {% set remaining_purse = remaining[team['Team Name']] %}
                         <div>Remaining: ₹{{ remaining_purse }}</div>
@@ -161,8 +183,8 @@
             <table border="1" class="center" style="width:100%">
                 <tr style="background-color: orange">
                     <th>Player Name</th>
-                    <th>Skill</th>
-                    <th>Position</th>
+                    <th>Batting Style</th>
+                    <th>Bowling Style</th>
                     <th>Base Price</th>
                     <th>Status</th>
                     <th>Sold To</th>
@@ -182,7 +204,7 @@
                             Pending
                         {% endif %}
                     </td>
-                    <td>{{ player['Sold To'] }}</td>
+                    <td >{{ player['Sold To'] }}</td>
                 </tr>
                 {% endfor %}
             </table>

@@ -17,6 +17,7 @@ def load_data_from_excel(file_path):
     # Initialize the players in each team
     for team in teams:
         team['Players'] = []
+        team['Color'] = team.get('Color', '#FFFFFF')
 
     return players, teams
 
@@ -43,11 +44,12 @@ def welcome():
 
 @app.route('/auction')
 def index():
-    global current_player, current_bid, highest_bid_team, auction_complete, results_file
+    global current_player, current_bid, highest_bid_team, highest_bid_team_,auction_complete, results_file
     return render_template('index.html',
                            current_player=current_player,
                            current_bid=current_bid,
                            highest_bid_team=highest_bid_team,
+                           highest_bid_team_color=highest_bid_team_color,
                            teams=teams,
                            players=players,
                            auction_complete=auction_complete,
@@ -96,11 +98,12 @@ results_file = None
 first_bid = 0
 scrolling = ""
 remaining = {}
+highest_bid_team_color = "#FFFFF"
 for team in teams:
     remaining[team['Team Name']] = team['Budget']
 @app.route('/bid/<team_name>', methods=['GET'])
 def bid(team_name):
-    global current_bid, highest_bid_team, current_player, last_bid_team, first_bid, remaining
+    global current_bid, highest_bid_team, highest_bid_team_color, current_player, last_bid_team, first_bid, remaining
 
     if last_bid_team == team_name:
         return index()  # Prevent the same team from bidding twice consecutively
@@ -126,6 +129,11 @@ def bid(team_name):
 
     highest_bid_team = team_name
     last_bid_team = team_name
+
+    for team in teams:
+        if team['Team Name'] == highest_bid_team:
+            highest_bid_team_color = team['Color']
+            break
 
     return index()
 
