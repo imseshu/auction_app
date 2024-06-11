@@ -122,7 +122,7 @@
                     <td>{{ current_player['Player Name'] }}</td>
                     <td>{{ current_player['Skill'] }}</td>
                     <td>{{ current_player['Position'] }}</td>
-                    <td>₹{{ current_player['Base Price'] }}</td>
+                    <td>{{ current_player['Base Price'] }} Units</td>
                 </tr>
                 {% else %}
                 <tr>
@@ -132,7 +132,7 @@
             </table>
 
             {% if current_player %}
-            <h1>Current Bid: ₹{{ current_bid }}</h1>
+            <h1>Current Bid: {{ current_bid }} Units</h1>
             {% if highest_bid_team %}
             <h1 style="background-color: {{ highest_bid_team_color }}">Current bid with: {{ highest_bid_team }}</h1>
             {% endif %}
@@ -157,13 +157,13 @@
                 <tr class="center" >
                     {% for team in teams %}
                     <td style="background-color: {{ team['Color'] }};">
-                        <div style="font-weight: bold;">Budget: ₹{{ team['Budget'] }}</div>
+                        <div>Budget: {{ team['Budget'] }} Units</div>
                         {% set remaining_purse = remaining[team['Team Name']] %}
-                        <div>Remaining: ₹{{ remaining_purse }}</div>
+                        <div style="font-weight: bold;">Remaining: {{ remaining_purse }} Units</div>
                         <div>Players Purchased: {{ team['Players'] | length }}</div>
                         <ul>
                             {% for player in team['Players'] %}
-                            <li style="font-size:18px; font-weight: bold;">{{ player['name'] }} - ₹{{ player['bid'] }}</li>
+                            <li style="font-size:18px; font-weight: bold;">{{ player['name'] }} - {{ player['bid'] }} U</li>
                             {% endfor %}
                         </ul>
                     </td>
@@ -194,10 +194,10 @@
                     <td>{{ player['Player Name'] }}</td>
                     <td>{{ player['Skill'] }}</td>
                     <td>{{ player['Position'] }}</td>
-                    <td>₹{{ player['Base Price'] }}</td>
+                    <td>{{ player['Base Price'] }} U</td>
                     <td>
                         {% if player['Status'] == 'Sold' %}
-                            Sold - ₹{{ player['Final Price'] }}
+                            Sold - {{ player['Final Price'] }} U
                         {% elif player['Status'] == 'Unsold' %}
                             Unsold - -
                         {% else %}

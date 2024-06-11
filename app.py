@@ -113,16 +113,16 @@ def bid(team_name):
             current_bid += 0
             first_bid = 1
         else:
-            if remaining[team_name] >= current_bid + 10:
-                current_bid += 10  # Initial increment
+            if remaining[team_name] >= current_bid + 50:
+                current_bid += 50  # Initial increment
             else:
                 return index()
     else:
-        if current_bid < 2 * current_player['Base Price'] and remaining[team_name] >= current_bid + 10:
-            increment = 10
+        if current_bid < 2 * current_player['Base Price'] and remaining[team_name] >= current_bid + 50:
+            increment = 50
         else:
-            if remaining[team_name] >= current_bid + 20:
-                increment = 20
+            if remaining[team_name] >= current_bid + 100:
+                increment = 100
             else:
                 return index()
         current_bid += increment
@@ -158,9 +158,9 @@ def finalize():
         current_player['Sold To'] = '-'  # Indicate no team
     scrolling = ""
     for team in teams:
-        scrolling += team['Team Name'] + " (Remaining Purse: ₹" + str(remaining[team['Team Name']]) + ") Players Purchased - "
+        scrolling += team['Team Name'] + " (Remaining Purse: " + str(remaining[team['Team Name']]) + " U) Players Purchased - "
         for player in team['Players']:
-            scrolling += player['name'] + " ₹" + str(player['bid']) + " "
+            scrolling += player['name'] + " " + str(player['bid']) + " U, "
         scrolling += " | "
     # Move to the next player
     current_player_index += 1
