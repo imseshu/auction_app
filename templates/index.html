@@ -60,6 +60,7 @@
             font-weight: bold;
             font-size: 28px;
             cursor: pointer;
+            margin-top: 15px;
             border-radius: 15px;
         }
         .sold {
@@ -147,6 +148,11 @@
                  {% endif %}
                 {% endfor %}
             </div>
+            {% if current_player %}
+            <form action="/finalize" method="get">
+                <input type="submit" class="finalise" value="Finalize Current Bid">
+            </form>
+            {% endif %}
             <h2>Teams</h2>
             <table border="1" style="width:100%">
                 <tr style="background-color: orange">
@@ -170,12 +176,6 @@
                     {% endfor %}
                 </tr>
             </table>
-
-            {% if current_player %}
-            <form action="/finalize" method="get">
-                <input type="submit" class="finalise" value="Finalize Current Bid">
-            </form>
-            {% endif %}
         </div>
 
         <div style="flex: 1; margin-left: 20px;">
