@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Players & Teams</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .info {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        code {
+            background: #e0e0e0;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+            display: block;
+            margin: 5px 0;
+            white-space: pre-wrap;
+        }
+        .required {
+            color: red;
+        }
+        .optional {
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Start Auction</h1>
+        
+        <div class="info">
+            <strong>Players File Format (Required):</strong><br>
+            Create a text file (.txt):<br>
+            <code>Player Name,Batting Style,Bowling Style,Base Price
+Virat Kohli,Right Hand,NA,1000
+Jasprit Bumrah,Right Hand,Right Arm Fast,800</code>
+        </div>
+
+        <div class="info">
+            <strong>Teams File Format (Optional):</strong><br>
+            Create a text file (.txt):<br>
+            <code>Team Name,Budget,Color
+Mumbai Indians,5000,#1f77b4
+Chennai Super Kings,4800,#FFD700
+Royal Challengers,4500,#FF6347</code>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="players_file">
+                    Players File (.txt) <span class="required">*</span>
+                </label>
+                <input type="file" id="players_file" name="players_file" accept=".txt" required>
+            </div>
+
+            <div class="form-group">
+                <label for="teams_file">
+                    Teams File (.txt) <span class="optional">(optional)</span>
+                </label>
+                <input type="file" id="teams_file" name="teams_file" accept=".txt">
+            </div>
+
+            <button type="submit">Start Auction</button>
+        </form>
+    </div>
+</body>
+</html>

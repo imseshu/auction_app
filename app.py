@@ -8,18 +8,51 @@ app = Flask(__name__)
 
 
 # Load data from Excel file
-def load_data_from_excel(file_path):
-    players_df = pd.read_excel(file_path, sheet_name='Players')
-    teams_df = pd.read_excel(file_path, sheet_name='Teams')
-    players = players_df.to_dict(orient='records')
-    teams = teams_df.to_dict(orient='records')
+def parse_text_file(file_path):
+    """Parse text file with format: Player Name,Batting Style,Bowling Style,Base Price"""
+    players = []
+    try:
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+            for line in lines[1:]:  # Skip header
+                line = line.strip()
+                if line:
+                    parts = line.split(',')
+                    if len(parts) >= 4:
+                        players.append({
+                            'Player Name': parts[0].strip(),
+                            'Batting Style': parts[1].strip(),
+                            'Bowling Style': parts[2].strip(),
+                            'Base Price': int(parts[3].strip()),
+                            'Status': 'Pending',
+                            'Final Price': '-',
+                            'Sold To': '-'
+                        })
+    except Exception as e:
+        print(f"Error parsing file: {e}")
+    return players
 
-    # Initialize the players in each team
-    for team in teams:
-        team['Players'] = []
-        team['Color'] = team.get('Color', '#FFFFFF')
 
-    return players, teams
+def parse_teams_file(file_path):
+    """Parse text file with format: Team Name,Budget,Color"""
+    teams = []
+    try:
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+            for line in lines[1:]:  # Skip header
+                line = line.strip()
+                if line:
+                    parts = line.split(',')
+                    if len(parts) >= 2:
+                        teams.append({
+                            'Team Name': parts[0].strip(),
+                            'Budget': int(parts[1].strip()),
+                            'Color': parts[2].strip() if len(parts) > 2 else '#FFFFFF',
+                            'Players': []
+                        })
+    except Exception as e:
+        print(f"Error parsing teams file: {e}")
+    return teams
 
 
 # Save auction results to Excel file
@@ -42,9 +75,99 @@ def welcome():
     return render_template('welcome.html')
 
 
+UPLOAD_FOLDER = './'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+
+def save_uploaded_file(file, filename):
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    global players, teams, current_player_index, current_player, current_bid, highest_bid_team, auction_complete, results_file, remaining, first_bid, last_bid_team
+    
+    if request.method == 'POST':
+        # Check for players file
+        if 'players_file' not in request.files:
+            return "No players file uploaded"
+        
+        players_file = request.files['players_file']
+        
+        if players_file.filename == '':
+            return "No players file selected"
+        
+        # Check for teams file (optional)
+        teams_file = request.files.get('teams_file') if 'teams_file' in request.files else None
+        
+        if players_file:
+            # Save players file
+            save_uploaded_file(players_file, 'players.txt')
+            players = parse_text_file('players.txt')
+            
+            # Load teams from uploaded file or use default
+            if teams_file and teams_file.filename != '':
+                save_uploaded_file(teams_file, 'teams.txt')
+                teams = parse_teams_file('teams.txt')
+            elif os.path.exists('teams.txt'):
+                teams = parse_teams_file('teams.txt')
+            else:
+                # Create default teams if no file provided
+                return redirect(url_for('create_teams', num_players=len(players)))
+            
+            # Initialize auction variables
+            current_player_index = 0
+            current_player = players[0] if players else None
+            current_bid = current_player['Base Price'] if current_player else 0
+            highest_bid_team = None
+            last_bid_team = None
+            auction_complete = False
+            results_file = None
+            first_bid = 0
+            
+            # Initialize remaining budget
+            remaining = {}
+            for team in teams:
+                remaining[team['Team Name']] = team['Budget']
+            
+            return redirect('/auction')
+    
+    return render_template('upload.html')
+
+
+@app.route('/create_teams/<int:num_players>', methods=['GET', 'POST'])
+def create_teams(num_players):
+    global teams
+    
+    if request.method == 'POST':
+        # Get team data from form
+        team_names = request.form.getlist('team_name[]')
+        team_budgets = request.form.getlist('team_budget[]')
+        
+        teams = []
+        for name, budget in zip(team_names, team_budgets):
+            if name and budget:
+                teams.append({
+                    'Team Name': name.strip(),
+                    'Budget': int(budget),
+                    'Players': [],
+                    'Color': f'#{hash(name) % 0x1000000:06x}'
+                })
+        
+        if teams:
+            return redirect('/auction')
+        else:
+            return "Please provide at least one team"
+    
+    return render_template('create_teams.html', num_players=num_players)
+
+
 @app.route('/auction')
 def index():
-    global current_player, current_bid, highest_bid_team, highest_bid_team_,auction_complete, results_file
+    global current_player, current_bid, highest_bid_team, highest_bid_team_color, auction_complete, results_file, remaining, scrolling
+    
     return render_template('index.html',
                            current_player=current_player,
                            current_bid=current_bid,
@@ -58,39 +181,12 @@ def index():
                            scrolling=scrolling)
 
 
-UPLOAD_FOLDER = './'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
-def save_uploaded_file(file):
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'auction_data.xlsx'))
-
-
-@app.route('/start_auction', methods=['POST'])
-def start_auction():
-    if 'file' not in request.files:
-        return "No file uploaded"
-
-    file = request.files['file']
-
-    if file.filename == '':
-        return "No selected file"
-
-    if file:
-        # Save the uploaded file (overwrite if it exists)
-        save_uploaded_file(file)
-        return redirect(url_for('index'))
-
-
 # Load the initial data
-players, teams = load_data_from_excel('auction_data.xlsx')
-
-# Auction variables
+players = []
+teams = []
 current_player_index = 0
-current_player = players[current_player_index]
-current_bid = current_player['Base Price']
+current_player = None
+current_bid = 0
 highest_bid_team = None
 last_bid_team = None
 auction_complete = False
@@ -98,9 +194,7 @@ results_file = None
 first_bid = 0
 scrolling = ""
 remaining = {}
-highest_bid_team_color = "#FFFFF"
-for team in teams:
-    remaining[team['Team Name']] = team['Budget']
+highest_bid_team_color = "#FFFFFF"
 @app.route('/bid/<team_name>', methods=['GET'])
 def bid(team_name):
     global current_bid, highest_bid_team, highest_bid_team_color, current_player, last_bid_team, first_bid, remaining

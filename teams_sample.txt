@@ -1,0 +1,9 @@
+Team Name,Budget,Color
+Mumbai Indians,5000,#1f77b4
+Chennai Super Kings,4800,#FFD700
+Royal Challengers,4500,#FF6347
+Kolkata Knight,5200,#800080
+Delhi Capitals,4900,#003DA5
+Punjab Kings,5100,#FF0000
+Rajasthan Royals,4700,#0099CC
+Sunrisers Hyderabad,5000,#FF8C00

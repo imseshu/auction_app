@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Teams</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .team-input-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .btn-secondary {
+            background: #ddd;
+            color: #333;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background: #ccc;
+        }
+        .add-team-btn {
+            background: #04AA6D;
+            margin-bottom: 20px;
+        }
+        .add-team-btn:hover {
+            background: #038a54;
+        }
+        #teamsContainer {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .remove-btn {
+            background: #ff6b6b;
+            padding: 8px 12px;
+            width: auto;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .remove-btn:hover {
+            background: #ff5252;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏏 Create Teams</h1>
+        <div class="subtitle">Enter details for {{ num_players }} players</div>
+
+        <form method="POST">
+            <div id="teamsContainer"></div>
+
+            <button type="button" class="add-team-btn" onclick="addTeam()">+ Add Team</button>
+            <button type="submit">Start Auction</button>
+        </form>
+    </div>
+
+    <script>
+        let teamCount = 0;
+
+        function addTeam() {
+            teamCount++;
+            const container = document.getElementById('teamsContainer');
+            
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'form-group';
+            teamDiv.id = 'team-' + teamCount;
+            
+            teamDiv.innerHTML = `
+                <div class="team-input-group">
+                    <div>
+                        <label for="team_name_${teamCount}">Team Name:</label>
+                        <input type="text" name="team_name[]" id="team_name_${teamCount}" required>
+                    </div>
+                    <div>
+                        <label for="team_budget_${teamCount}">Budget:</label>
+                        <input type="number" name="team_budget[]" id="team_budget_${teamCount}" value="5000" required>
+                    </div>
+                </div>
+                <button type="button" class="remove-btn" onclick="removeTeam(${teamCount})">Remove Team</button>
+            `;
+            
+            container.appendChild(teamDiv);
+        }
+
+        function removeTeam(id) {
+            const teamDiv = document.getElementById('team-' + id);
+            if (teamDiv) {
+                teamDiv.remove();
+            }
+        }
+
+        // Add initial team
+        addTeam();
+    </script>
+</body>
+</html>

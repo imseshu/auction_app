@@ -119,10 +119,10 @@
                     <th>Base Price</th>
                 </tr>
                 {% if current_player %}
-                <tr style="background-color: black;" class="current-player {{ current_player['Skill'].lower() }}">
+                <tr style="background-color: black;" class="current-player">
                     <td>{{ current_player['Player Name'] }}</td>
-                    <td>{{ current_player['Skill'] }}</td>
-                    <td>{{ current_player['Position'] }}</td>
+                    <td>{{ current_player['Batting Style'] }}</td>
+                    <td>{{ current_player['Bowling Style'] }}</td>
                     <td>{{ current_player['Base Price'] }} Units</td>
                 </tr>
                 {% else %}
@@ -192,8 +192,8 @@
                 {% for player in players %}
                 <tr class="{% if player == current_player %}highlight{% elif player['Status'] == 'Sold' %}sold{% elif player['Status'] == 'Unsold' %}unsold{% else %}pending{% endif %}">
                     <td>{{ player['Player Name'] }}</td>
-                    <td>{{ player['Skill'] }}</td>
-                    <td>{{ player['Position'] }}</td>
+                    <td>{{ player['Batting Style'] }}</td>
+                    <td>{{ player['Bowling Style'] }}</td>
                     <td>{{ player['Base Price'] }} U</td>
                     <td>
                         {% if player['Status'] == 'Sold' %}
